@@ -3,6 +3,7 @@ version: 0.2
 # This file configures how CodeBuild works
 # The environment variables were set when setting up the code build project in AWS console
 
+### All of this is part of the Build stage in the pipeline:
 # This automates creating a docker image, building it and pushing it to ECR. It also sends artifacts to the S3 artifact bucket (default) created by CodePipeline
 
 phases:
