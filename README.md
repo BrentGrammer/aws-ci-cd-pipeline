@@ -122,3 +122,10 @@
   <br>
   <br>
 
+- When committing and pushing to your repo, a CloudWatch Event will be generated and the pipeline will run based on that event
+- A docker image with the tag of latest and one with the commit hash id for history will be created (based on how the buildspec.yml is setup to tag images pushed)
+- Artifacts specified in the `buildspec.yml` will be now available to be used in a deploy stage or other stage in the pipeline in the `BuildArtif/` folder:
+  <br>
+  <img src="img/artifacts.png" height="50%" width="50%" />
+  <br>
+  <br>
