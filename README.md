@@ -24,6 +24,7 @@
 - Manage Credentials if there are no creds for the source
   - For GitHub, Installing the GitHub App (AWS Connector for GitHub) is generally the recommended option
 - Enter a branch name i.e. `main` for the Source version
+  - **NOTE:** You can leave this blank if you don't want the build to start automatically on push (instead you would go into the project and click "Start Build")
 - Environment section: Select an image to use (can use a custom image from your ECR)
 - Specify a service role that the code build project will use to interact with Amazon Services (can optionally have it create one for you)
   - Environment > Additional Configuration > environment variables
@@ -77,5 +78,25 @@
   - Give the policy a name like `Codebuild-ECR` and create the policy
 
 ### Buildspec.YML - What CodeBuild does to files in your project repo
+
 - Create a buildspec.yml file and add it to the root folder of your project
-- 
+- After pushing to your repo main branch that should kick off a build (or you can go into the project and click "Start Build")
+- This will build and create the image and store it in the ECR registry repo:
+  <br>
+  <img src="img/imagecreated.png" height="50%" width="50%" />
+  <br>
+  <br>
+
+### Testing out an image from your ECR
+
+- Start an EC2 instance with Docker installed and ssh into it
+- login to ECR: `aws ecr get-login-password --region <AWS_REGION> | docker login --username AWS --password-stdin ACCOUNT_ID_REPLACEME.dkr.ecr.<AWS_REGION>.amazonaws.com`
+- get the URI of the image from your ECR repo:
+  <br>
+  <img src="img/imageuri.png" height="50%" width="50%" />
+  <br>
+  <br>
+- on the Instance run `docker pull <imageuri_from_your_ecr>`
+- `docker images` to get the id of the image you downloaded
+- Then run it with `docker run -p 80:80 <image_id>` (adjust ports exposed if needed)
+- Go to public IP to see it served

@@ -6,7 +6,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      # Get the permissions to store a docker image onto ECR (uses aws cli to pass creds from ecr to docker login)
+      # Get the permissions to store a docker image onto ECR (uses aws cli to get auth information for ECR and passes that to docker login so we can access images on ECR)
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
   build:
