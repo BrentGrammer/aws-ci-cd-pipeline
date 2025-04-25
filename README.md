@@ -5,8 +5,9 @@
 ## Architecture of Pipeline
 
 - GitHub Repo where the app is stored
+- CodePipeline
 - CodeBuild to produce deploy artifacts (container) and push to ECR
--
+- CodeDeploy
 
 ## Pipeline Setup
 
@@ -102,6 +103,7 @@
 - Go to public IP to see it served
 
 ### CodePipeline
+
 - AWS Console > CodePipeline > Create Pipeline
 - Select "Custom Pipeline" then "Next"
 - Name your pipeline, i.e. `appnamepipeline`
@@ -127,5 +129,108 @@
 - Artifacts specified in the `buildspec.yml` will be now available to be used in a deploy stage or other stage in the pipeline in the `BuildArtif/` folder:
   <br>
   <img src="img/artifacts.png" height="50%" width="50%" />
+  <br>
+  <br>
+
+### Create a Load Balancer
+
+- EC2 > Load Balancers > Create > Create Application Load Balancer
+- Name the LB, i.e. `appnamepipeline`
+- Select Internet facing using IPv4
+- Select the Default VPC
+- Select all the AZs for that VPC (tick the checkboxes)
+- Security Groups: Create a new Security Group
+  - name and desription: `appnamepipeline-SG`
+  - Add Rule:
+    <br>
+    <img src="img/sg.png" height="50%" width="50%" />
+    <br>
+    <br>
+- Select the created Security Group in the drop down (uncheck default etc)
+- Create a Target Group which will point at Containers running in ECS Fargate:
+  <br>
+  <img src="img/targetcreate.png" height="50%" width="50%" />
+  <br>
+  <br>
+  - Name the target group and select IP Addresses since it will be pointing to containers on Fargate, HTTP and port 80 and the default VPC, then click Next, then leave defaults and Create Target Group
+    <br>
+    <img src="img/tg.png" height="50%" width="50%" />
+    <br>
+    <br>
+- Close the create tab and then hit the refresh icon and select the Target Group created. This will ensure that anything hitting the load balancer on port 80 will be directed to this target group:
+  <br>
+  <img src="img/listener.png" height="50%" width="50%" />
+  <br>
+  <br>
+- Create the load balancer
+
+### Create an ECS Cluster
+
+- AWS Console > ECS > Clusters in left side menu > Create Cluster
+- Name the cluster and make sure AWS Fargate is selected under Infrastructure and click Create
+- For using CodeDeploy, you first create a Task/Service definition on ECS cluster manually, 
+  - Then CodeDeploy will use the Service whenever a new image is made to deploy the image
+  ```json
+  {
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:accountid:task-definition/taskname:1",
+    "containerDefinitions": [
+        {
+            "name": "myapp",
+            "image": "accountid.dkr.ecr.us-east-1.amazonaws.com/servicename:12345sha", // Code deploy will update the service with a new image
+  ```
+
+#### Create a Task Definition (defines a container)
+- AWS Console > ECS > Task Definitions in left side menu
+- click Create a New Task Definition
+- Give the task a name
+- Under `Container - 1` section, name the container and enter the URI (copy it from ECR > latest image > Copy URI):
+  <br>
+  <img src="img/copyuri.png" height="50%" width="50%" />
+  <br>
+  <br>
+- Choose Operating System (i.e. Linux X86_64) , CPU, Memory
+- Change the Task Role to the task execution role in the dropdown
+- Click Create
+
+#### Create a Service (how to deploy the container)
+- Deploy Dropdown in Task created > Create Service:
+  <br>
+  <img src="img/createservice.png" height="50%" width="50%" />
+  <br>
+  <br>
+- Name the service, select your ECS cluster, select `Launch Type` and make sure Fargate is selected:
+  <br>
+  <img src="img/servicemenu.png" height="50%" width="50%" />
+  <br>
+  <br>
+- Input for Desired Tasks: `2` for high availability
+  - **This makes 2 containers each in different AZs part of the target group that your load balancer is set to use**
+- Deployment Options: `Rolling update`
+- In Networking section, select the default VPC, all subnets, select your pipeline security group and leave the default security group selected as well, enable public IP:
+  <br>
+  <img src="img/servicenetworking.png" height="50%" width="50%" />
+  <br>
+  <br>
+- Load Balancing Section:
+  - Select use Load Balancer
+  - Select Application Load Balancer
+  - Select existing Load Balancer option: Choose the load balancer you created
+  - Make sure you select your container to load balance
+  - Under Listener, choose an existing listener and select the listener you created (i.e. `80:HTTP`)
+  - Use an existing Target Group - select your TG created
+- Optionally enable Autoscaling (need to setup alarms etc.)
+- Click create
+- This will start up two tasks as scene in the Tasks tab (two containers):
+  <br>
+  <img src="img/tasks.png" height="50%" width="50%" />
+  <br>
+  <br>
+
+#### Test the Task Deployments
+- AWS Console > EC2 > Load Balancers in the left side menu
+- Select your load balancer (click the name link)
+- Find the DNS Name and copy that to get the link to visit in the browser (note: make sure to use HTTP and not https:// if you do not have ssl setup for the site)
+  <br>
+  <img src="img/dnsname.png" height="50%" width="50%" />
   <br>
   <br>
