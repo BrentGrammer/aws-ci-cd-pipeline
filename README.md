@@ -276,7 +276,15 @@
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": "iam:PassRole",
+      "Action": [
+        "ecs:RunTask", // run task permission needed on pipeline role
+        "ecs:DescribeClusters",
+        "ecs:DescribeTaskDefinitions",
+        "ecs:ListTaskDefinitions",
+        "ecs:RegisterTaskDefinition",
+        "ecs:DeregisterTaskDefinition",
+        "iam:PassRole" // pass role permission needed on pipeline role
+      ],
       "Resource": "*"
     }
   ]
