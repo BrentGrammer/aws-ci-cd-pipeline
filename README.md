@@ -6,8 +6,9 @@
 
 - GitHub Repo where the app is stored
 - CodePipeline
-- CodeBuild to produce deploy artifacts (container) and push to ECR
-- CodeDeploy
+  - Source Stage: Connected to GitHub/source control via a GitHub app (bot that acts on your behalf with temporary credentials)
+  - Build stage: CodeBuild to produce deploy artifacts (container) and push to ECR (via a `buildspec.yml` configuration)
+  - Deploy Stage: uses CodeDeploy which deploys 2 containers to ECS via a service definition created
 
 ## Pipeline Setup
 
@@ -168,7 +169,7 @@
 
 - AWS Console > ECS > Clusters in left side menu > Create Cluster
 - Name the cluster and make sure AWS Fargate is selected under Infrastructure and click Create
-- For using CodeDeploy, you first create a Task/Service definition on ECS cluster manually, 
+- For using CodeDeploy, you first create a Task/Service definition on ECS cluster manually,
   - Then CodeDeploy will use the Service whenever a new image is made to deploy the image
   ```json
   {
@@ -180,6 +181,7 @@
   ```
 
 #### Create a Task Definition (defines a container)
+
 - AWS Console > ECS > Task Definitions in left side menu
 - click Create a New Task Definition
 - Give the task a name
@@ -193,6 +195,7 @@
 - Click Create
 
 #### Create a Service (how to deploy the container)
+
 - Deploy Dropdown in Task created > Create Service:
   <br>
   <img src="img/createservice.png" height="50%" width="50%" />
@@ -227,6 +230,7 @@
   <br>
 
 #### Test the Task Deployments
+
 - AWS Console > EC2 > Load Balancers in the left side menu
 - Select your load balancer (click the name link)
 - Find the DNS Name and copy that to get the link to visit in the browser (note: make sure to use HTTP and not https:// if you do not have ssl setup for the site)
@@ -236,6 +240,7 @@
   <br>
 
 ### Add CodeDeploy stage to Pipeline
+
 - Go to AWS Console > CodePipeline > Edit to add a new stage for CodeDeploy
   <br>
   <img src="img/editpipeline.png" height="50%" width="50%" />
@@ -251,3 +256,24 @@
   - Image Definition File: enter the name of the artifact you created as part of the build stage: `imagedefinitions.json`
   - Click Done
   - Save > Save to complete adding the stage
+
+### Pipeline logs
+
+- To see logs of the pipeline progress go to Build logs (click on details links in the code pipeline stages):
+  <br>
+  <img src="img/buildlogs.png" height="50%" width="50%" />
+  <br>
+  <br>
+- NOTE: if you get permissions errors you may need to add ECS permissions to the service role in the Deploy stage of the pipeline (click the service role link in the pipeline settings tab)
+- Go to Add Permissions > Attach Policies:
+  <br>
+  <img src="img/iam.png" height="50%" width="50%" />
+  <br>
+  <br>
+- Select the CodeDeploy role for ECS:
+  <br>
+  <img src="img/role.png" height="50%" width="50%" />
+  <br>
+  <br>
+
+
