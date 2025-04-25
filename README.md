@@ -100,3 +100,25 @@
 - `docker images` to get the id of the image you downloaded
 - Then run it with `docker run -p 80:80 <image_id>` (adjust ports exposed if needed)
 - Go to public IP to see it served
+
+### CodePipeline
+- AWS Console > CodePipeline > Create Pipeline
+- Select "Custom Pipeline" then "Next"
+- Name your pipeline, i.e. `appnamepipeline`
+- Allow AWS to create a new service role for the pipeline to interact with AWS resources
+- **Advanced Settings** - This is where you can specify where Artifacts are output to.
+  - These can be used as input to any stage in a code pipeline and how you tie together stages
+  - By default, a S3 bucket is created in the account to store artifacts, but you could also choose a custom location
+- Click next and select a Source (i.e. GitHub via GitHub app or whatever source you set up)
+- Add a Build Provider (i.e. CodeBuild if you're using that)
+  <br>
+  <img src="img/provider.png" height="50%" width="50%" />
+  <br>
+  <br>
+- Creating the pipeline will run an initial run
+- You can look for the artifact bucket (default) with a name like "codepipeline-region...":
+  <br>
+  <img src="img/artifactbucket.png" height="50%" width="50%" />
+  <br>
+  <br>
+
