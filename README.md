@@ -150,7 +150,7 @@
 - Select the created Security Group in the drop down (uncheck default etc)
 - Create a Target Group which will point at Containers running in ECS Fargate:
   <br>
-  <img src="img/targetcreate.png" height="50%" width="50%" />
+  <img src="img/targetcreate.png" height="75%" width="75%" />
   <br>
   <br>
   - Name the target group and select IP Addresses since it will be pointing to containers on Fargate, HTTP and port 80 and the default VPC, then click Next, then leave defaults and Create Target Group
