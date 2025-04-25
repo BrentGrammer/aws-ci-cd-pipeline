@@ -264,6 +264,25 @@
   <img src="img/buildlogs.png" height="50%" width="50%" />
   <br>
   <br>
+
+### Troubleshooting permissions errors
+- See https://lancecleveland.com/2024/01/17/using-codepipeline-for-ecs-continuous-deployment/
+- does not have sufficient permissions to access ECS actually means that it doesn’t have permission to delegate roles and policies to the newly created tasks.
+- Each time a new container image is deployed, a new revision of the task definition is usually created. This new task definition needs to include the IAM role that the ECS task will use for permissions to access other AWS resources. The iam:PassRole permission is required for CodePipeline to assign this IAM role to the new task definition.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "*"
+    }
+  ]
+}
+```
+
 - NOTE: if you get permissions errors you may need to add ECS permissions to the service role in the Deploy stage of the pipeline (click the service role link in the pipeline settings tab)
 - Go to Add Permissions > Attach Policies:
   <br>
@@ -275,5 +294,3 @@
   <img src="img/role.png" height="50%" width="50%" />
   <br>
   <br>
-
-
