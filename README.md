@@ -234,3 +234,20 @@
   <img src="img/dnsname.png" height="50%" width="50%" />
   <br>
   <br>
+
+### Add CodeDeploy stage to Pipeline
+- Go to AWS Console > CodePipeline > Edit to add a new stage for CodeDeploy
+  <br>
+  <img src="img/editpipeline.png" height="50%" width="50%" />
+  <br>
+  <br>
+- Click `+ Add Stage` button after the Build stage
+- Name the new stage `Deploy`
+- `+ Add Action group`
+  - Name: `Deploy`
+  - Action provider: choose `Amazon ECS` from the dropdown
+  - Input Artifact: `BuildArtifact` (this is the imagedefinitions.json produced by the Build stage as an artifact which CodeDeploy will use now)
+  - Choose the cluster and service you created
+  - Image Definition File: enter the name of the artifact you created as part of the build stage: `imagedefinitions.json`
+  - Click Done
+  - Save > Save to complete adding the stage
