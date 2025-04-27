@@ -7,6 +7,7 @@
 - GitHub Repo where the app is stored
 - CodePipeline
   - Source Stage: Connected to GitHub/source control via a GitHub app (bot that acts on your behalf with temporary credentials)
+    - Note: a GitHub app was installed for this project via AWS
   - Build stage: CodeBuild to produce deploy artifacts (container) and push to ECR (via a `buildspec.yml` configuration)
   - Deploy Stage: uses CodeDeploy which deploys 2 containers to ECS via a service definition created
 
